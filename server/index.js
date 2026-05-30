@@ -36,9 +36,9 @@ app.use('/api/certificates', require('./src/routes/certificates'));
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
-// Serve React frontend in production
-if (isProd) {
-  const clientDist = path.join(__dirname, '../client/dist');
+// Serve React frontend when build exists (production / Railway)
+const clientDist = path.join(__dirname, '../client/dist');
+if (fs.existsSync(clientDist)) {
   app.use(express.static(clientDist));
   // React Router catch-all (must be last)
   app.get('*', (_req, res) => {
