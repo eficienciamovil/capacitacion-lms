@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+server/node_modules/
+client/node_modules/
+
+# Built files
+client/dist/
+
+# Database and user uploads (use Railway Volumes for persistence)
+server/data/
+server/uploads/
+server/certificates/
+
+# Environment
+server/.env
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
