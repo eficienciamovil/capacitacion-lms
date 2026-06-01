@@ -4,15 +4,20 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { initializeDatabase } = require('./src/config/database');
+const { UPLOADS_DIR, CERTS_DIR, DB_PATH } = require('./src/config/paths');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const isProd = process.env.NODE_ENV === 'production';
 
 // Ensure required directories exist
-['data', 'uploads/videos', 'uploads/presentations', 'certificates'].forEach(dir => {
-  const fullPath = path.join(__dirname, dir);
-  if (!fs.existsSync(fullPath)) fs.mkdirSync(fullPath, { recursive: true });
+[
+  path.dirname(DB_PATH),
+  path.join(UPLOADS_DIR, 'videos'),
+  path.join(UPLOADS_DIR, 'presentations'),
+  CERTS_DIR,
+].forEach(dir => {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
 // Initialize database and seed admin

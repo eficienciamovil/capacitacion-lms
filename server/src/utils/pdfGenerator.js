@@ -1,8 +1,7 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
-
-const CERTS_DIR = path.join(__dirname, '../../certificates');
+const { CERTS_DIR } = require('../config/paths');
 
 function generateCertificate({ userName, courseName, score, date, attemptId }) {
   const filename = `cert_${attemptId}.pdf`;

@@ -1,8 +1,6 @@
 const fs = require('fs');
-const path = require('path');
 const { getDb } = require('../config/database');
-
-const CERTS_DIR = path.join(__dirname, '../../certificates');
+const { CERTS_DIR } = require('../config/paths');
 
 function listCertificates(req, res) {
   const db = getDb();

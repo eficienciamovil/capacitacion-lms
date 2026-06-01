@@ -44,6 +44,40 @@ export default function CourseViewPage() {
     if (!materialCompleted) handleMarkComplete();
   }
 
+  async function handleDownload() {
+    try {
+      const token = localStorage.getItem('token');
+      const resp = await fetch(`/api/courses/${id}/presentation`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!resp.ok) throw new Error();
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = course.presentation_filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('Error al descargar la presentación');
+    }
+  }
+
+  async function handleOpenOnline() {
+    try {
+      const { data } = await coursesApi.getPresentationToken(id);
+      const fileUrl = `${window.location.origin}/api/courses/${id}/presentation/public?t=${data.token}`;
+      window.open(
+        `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`,
+        '_blank'
+      );
+    } catch {
+      alert('Error al abrir la presentación online');
+    }
+  }
+
   if (loading) return (
     <div className="flex justify-center py-20">
       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
@@ -139,18 +173,12 @@ export default function CourseViewPage() {
                     Para ver la presentación PowerPoint, descárgala y ábrela con Microsoft Office o Google Slides.
                   </p>
                   <div className="flex gap-3 justify-center flex-wrap">
-                    <a href={pptUrl} download className="btn-primary">
+                    <button onClick={handleDownload} className="btn-primary">
                       ⬇ Descargar presentación
-                    </a>
-                    {/* Office Online Viewer (requires public URL - only works with internet) */}
-                    <a
-                      href={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(window.location.origin + pptUrl)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn-secondary"
-                    >
+                    </button>
+                    <button onClick={handleOpenOnline} className="btn-secondary">
                       Abrir en Office Online
-                    </a>
+                    </button>
                   </div>
                 </div>
               )}

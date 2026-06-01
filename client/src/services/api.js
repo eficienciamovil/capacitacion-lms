@@ -49,15 +49,18 @@ export const coursesApi = {
   uploadVideo: (id, formData, onProgress) =>
     api.post(`/courses/${id}/upload-video`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 600000,
       onUploadProgress: onProgress
     }),
 
   uploadPresentation: (id, formData, onProgress) =>
     api.post(`/courses/${id}/upload-presentation`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 600000,
       onUploadProgress: onProgress
     }),
 
+  getPresentationToken: (id) => api.get(`/courses/${id}/presentation-token`),
   completeMaterial: (id) => api.post(`/courses/${id}/complete`),
 
   videoUrl:        (id) => `/api/courses/${id}/video`,

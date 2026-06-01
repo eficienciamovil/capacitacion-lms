@@ -2,8 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { getDb } = require('../config/database');
+const { UPLOADS_DIR: UPLOADS } = require('../config/paths');
 
-const UPLOADS = path.join(__dirname, '../../uploads');
+// In-memory short-lived tokens for public presentation access (Office Online viewer)
+const _viewTokens = new Map();
+setInterval(() => {
+  const now = Date.now();
+  for (const [t, d] of _viewTokens) if (d.expiresAt < now) _viewTokens.delete(t);
+}, 60_000);
 
 function listCourses(req, res) {
   const db = getDb();
@@ -212,6 +218,30 @@ function servePresentation(req, res) {
   res.sendFile(filePath);
 }
 
+function getPresentationToken(req, res) {
+  const db = getDb();
+  const course = db.prepare('SELECT presentation_filename FROM courses WHERE id = ?').get(req.params.id);
+  if (!course?.presentation_filename) return res.status(404).json({ error: 'No hay presentación disponible' });
+  const token = uuidv4();
+  _viewTokens.set(token, { courseId: req.params.id, expiresAt: Date.now() + 10 * 60 * 1000 });
+  res.json({ token });
+}
+
+function servePresentationPublic(req, res) {
+  const { t } = req.query;
+  if (!t) return res.status(401).json({ error: 'Token requerido' });
+  const entry = _viewTokens.get(t);
+  if (!entry || entry.courseId !== req.params.id || entry.expiresAt < Date.now()) {
+    return res.status(401).json({ error: 'Token inválido o expirado' });
+  }
+  const db = getDb();
+  const course = db.prepare('SELECT presentation_filename FROM courses WHERE id = ?').get(req.params.id);
+  if (!course?.presentation_filename) return res.status(404).json({ error: 'Presentación no disponible' });
+  const filePath = path.join(UPLOADS, 'presentations', course.presentation_filename);
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Archivo no encontrado' });
+  res.sendFile(filePath);
+}
+
 function completeMaterial(req, res) {
   const db = getDb();
   const course = db.prepare('SELECT id FROM courses WHERE id = ?').get(req.params.id);
@@ -227,5 +257,6 @@ function completeMaterial(req, res) {
 
 module.exports = {
   listCourses, getCourse, createCourse, uploadVideo, uploadPresentation,
-  updateCourse, deleteCourse, streamVideo, servePresentation, completeMaterial
+  updateCourse, deleteCourse, streamVideo, servePresentation, completeMaterial,
+  getPresentationToken, servePresentationPublic,
 };

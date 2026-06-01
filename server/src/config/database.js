@@ -1,9 +1,7 @@
 const { DatabaseSync } = require('node:sqlite');
-const path = require('path');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
-
-const DB_PATH = path.join(__dirname, '../../data/lms.db');
+const { DB_PATH } = require('./paths');
 
 let db;
 

@@ -1,11 +1,12 @@
 const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const { UPLOADS_DIR } = require('../config/paths');
 
 function buildStorage(subfolder) {
   return multer.diskStorage({
     destination: (_req, _file, cb) => {
-      cb(null, path.join(__dirname, '../../uploads', subfolder));
+      cb(null, path.join(UPLOADS_DIR, subfolder));
     },
     filename: (_req, file, cb) => {
       const ext = path.extname(file.originalname).toLowerCase();

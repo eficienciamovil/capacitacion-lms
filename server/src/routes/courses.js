@@ -8,8 +8,10 @@ router.get('/',    authenticate, ctrl.listCourses);
 router.get('/:id', authenticate, ctrl.getCourse);
 
 // Streaming / file serving
-router.get('/:id/video',        authenticate, ctrl.streamVideo);
-router.get('/:id/presentation', authenticate, ctrl.servePresentation);
+router.get('/:id/video',                  authenticate, ctrl.streamVideo);
+router.get('/:id/presentation',           authenticate, ctrl.servePresentation);
+router.get('/:id/presentation-token',     authenticate, ctrl.getPresentationToken);
+router.get('/:id/presentation/public',               ctrl.servePresentationPublic);
 
 // Mark material completed
 router.post('/:id/complete', authenticate, ctrl.completeMaterial);
